@@ -1,20 +1,22 @@
-# Verwenden Sie ein leichtgewichtiges Python-Image als Basis
+# Leichtgewichtiges Python-Image
 FROM python:3.11-slim
 
-# Installieren Sie ffmpeg (Schlüsselabhängigkeit für yt-dlp)
+# ffmpeg für yt-dlp installieren
 RUN apt-get update && \
     apt-get install -y ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
-# Legen Sie das Arbeitsverzeichnis fest
+# Arbeitsverzeichnis
 WORKDIR /app
 
-# Kopieren Sie zuerst die Abhängigkeitsdatei und installieren Sie Python-Pakete (nutzen Sie den Docker-Cache)
+# Python-Abhängigkeiten kopieren
 COPY requirements.txt .
+
+# Abhängigkeiten installieren
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Kopieren Sie den restlichen Projektcode
+# Restlichen Code kopieren
 COPY . .
 
-# Starten Sie die Anwendung mit Gunicorn (passen Sie es an den Namen in Ihrer app.py an)
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
+# Render-Port verwenden
+CMD ["sh", "-c", "gunicorn -b 0.0.0.0:${PORT:-10000} app:app"]
